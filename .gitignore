@@ -1,0 +1,18 @@
+# Python-miljö
+.venv/
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
+
+# Källdata och interna underlag - inte kod, ska inte upp på GitHub
+Använd ej/
+NetSuite Suitelet/
+*.xlsx
+*.xls
+*.docx
+Screenshot*.png
+
+# Dashboardens egna exporter (genereras vid körning)
+BadDebt_Export_*

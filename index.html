@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bad Debt Reserve Dashboard</title>
+<style>
+  :root {
+    --navy: #0f1b2d;
+    --navy-light: #16283f;
+    --accent: #2e6bff;
+    --accent-soft: #eaf0ff;
+    --ink: #101828;
+    --muted: #5b6472;
+    --border: #e4e7ec;
+    --bg: #f7f8fa;
+    --card: #ffffff;
+    --good: #0a7f4c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.5;
+  }
+  .hero {
+    background: radial-gradient(circle at 15% 20%, #1c3358 0%, var(--navy) 55%, #0a1420 100%);
+    color: #fff;
+    padding: 72px 24px 88px;
+    text-align: center;
+  }
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 12px;
+    color: #9db4e0;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+  .hero h1 {
+    font-size: clamp(28px, 4vw, 42px);
+    margin: 0 0 14px;
+    font-weight: 700;
+  }
+  .hero p.lead {
+    font-size: 17px;
+    color: #c6d2e8;
+    max-width: 620px;
+    margin: 0 auto 34px;
+  }
+  .cta-row {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: #c6d2e8;
+    font-size: 13px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    margin-bottom: 28px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 26px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 15px;
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(46, 107, 255, 0.35);
+  }
+  .btn-secondary {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    border-color: rgba(255,255,255,0.25);
+  }
+
+  .wrap {
+    max-width: 960px;
+    margin: -48px auto 0;
+    padding: 0 24px 80px;
+    position: relative;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(16, 24, 40, 0.06);
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  @media (max-width: 640px) { .steps { grid-template-columns: 1fr; } }
+
+  .step {
+    background: var(--accent-soft);
+    border-radius: 12px;
+    padding: 22px;
+  }
+  .step .num {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+  .step h3 { margin: 0 0 6px; font-size: 15.5px; }
+  .step p { margin: 0; font-size: 13.5px; color: var(--muted); }
+  .step code {
+    background: rgba(46,107,255,0.12);
+    padding: 1px 6px;
+    border-radius: 5px;
+    font-size: 12.5px;
+  }
+
+  h2.section-title {
+    font-size: 20px;
+    margin: 0 0 22px;
+  }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 640px) { .feature-grid { grid-template-columns: 1fr; } }
+  .feature {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .feature .dot {
+    flex: none;
+    width: 8px; height: 8px;
+    margin-top: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .feature h4 { margin: 0 0 4px; font-size: 14.5px; }
+  .feature p { margin: 0; font-size: 13.5px; color: var(--muted); }
+
+  table.ladder {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  table.ladder th, table.ladder td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  table.ladder th {
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 12.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  table.ladder td.pct { font-variant-numeric: tabular-nums; font-weight: 600; }
+  table.ladder tr:last-child td { border-bottom: none; }
+
+  .filelist {
+    font-size: 14px;
+    display: grid;
+    gap: 10px;
+  }
+  .filelist .file {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .filelist .file:last-child { border-bottom: none; }
+  .filelist .name { font-weight: 600; }
+  .filelist .desc { color: var(--muted); text-align: right; }
+
+  .note {
+    background: #fff8ea;
+    border: 1px solid #f4dfa6;
+    color: #6b5216;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 13.5px;
+    margin-top: 8px;
+  }
+
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12.5px;
+    padding: 20px 24px 40px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="hero">
+    <div class="eyebrow">Villman Ekonomitjänster AB</div>
+    <h1>Bad Debt Reserve Dashboard</h1>
+    <p class="lead">
+      Beräknar bad debt-reserv automatiskt utifrån ert senaste NetSuite-utdrag,
+      med aging-analys, kundvy, drilldown och färdig bokföringsorder.
+    </p>
+    <div class="badge">🔒 Körs helt lokalt på din dator — ingen data lämnar maskinen</div>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="https://github.com/lisa382/bad_debt_test" target="_blank">Visa koden på GitHub →</a>
+      <a class="btn btn-secondary" href="#kom-igang">Så kommer du igång</a>
+    </div>
+  </div>
+
+  <div class="wrap">
+
+    <div class="card" id="kom-igang">
+      <h2 class="section-title">Så kommer du igång</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="num">1</div>
+          <h3>Ladda ner projektet</h3>
+          <p>Klona repot eller ladda ner det som ZIP från GitHub, till en mapp på din egen dator.</p>
+        </div>
+        <div class="step">
+          <div class="num">2</div>
+          <h3>Lägg in ditt utdrag</h3>
+          <p>Spara ditt eget NetSuite-utdrag (.xlsx) direkt i samma mapp. Data i utdraget lämnar aldrig din dator.</p>
+        </div>
+        <div class="step">
+          <div class="num">3</div>
+          <h3>Dubbelklicka på startfilen</h3>
+          <p>Öppna <code>Starta Dashboard.command</code>. Första gången skapas allt som behövs automatiskt.</p>
+        </div>
+        <div class="step">
+          <div class="num">4</div>
+          <h3>Dashboarden öppnas lokalt</h3>
+          <p>Den öppnas i webbläsaren på <code>localhost:8501</code> och läser alltid in det senaste utdraget.</p>
+        </div>
+      </div>
+      <div class="note">
+        Verktyget kräver Python 3. Ingen kod behöver ändras när ett nytt utdrag läggs i mappen —
+        dashboarden hittar det automatiskt.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title">Vad dashboarden gör</h2>
+      <div class="feature-grid">
+        <div class="feature">
+          <div class="dot"></div>
+          <div>
+            <h4>KPI-översikt</h4>
+            <p>Total Open AR, Required Bad Debt Reserve, Reserve % och antal öppna dokument – alltid för valt beräkningsdatum.</p>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="dot"></div>
+          <div>
+            <h4>Aging overview</h4>
+            <p>Öppen fordran och reserv per åldersintervall, med graf över fördelningen.</p>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="dot"></div>
+          <div>
+            <h4>Kundanalys</h4>
+            <p>Reserv per kund, effektiv reservsats, äldsta faktura och maximalt antal dagar öppen.</p>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="dot"></div>
+          <div>
+            <h4>Dokument-drilldown</h4>
+            <p>Filtrerbar transaktionslista som visar exakt hur totalsumman är uppbyggd, rad för rad.</p>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="dot"></div>
+          <div>
+            <h4>Bokföringsorder</h4>
+            <p>Justering mot bokförd reserv, konterad 6350 / 1515, redo att exporteras till bokslutet.</p>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="dot"></div>
+          <div>
+            <h4>Datakvalitet</h4>
+            <p>Rader med saknade värden, dubbletter eller orimliga datum flaggas tydligt – inget krasch.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title">Reservtrappa</h2>
+      <table class="ladder">
+        <thead>
+          <tr><th>Days Open</th><th>Reserve %</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>0–30</td><td class="pct">0,5%</td></tr>
+          <tr><td>31–60</td><td class="pct">1,0%</td></tr>
+          <tr><td>61–90</td><td class="pct">4,5%</td></tr>
+          <tr><td>91–180</td><td class="pct">10,0%</td></tr>
+          <tr><td>181–300</td><td class="pct">25,0%</td></tr>
+          <tr><td>301–500</td><td class="pct">50,0%</td></tr>
+          <tr><td>501–800</td><td class="pct">60,0%</td></tr>
+          <tr><td>801+</td><td class="pct">70,0%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title">Innehåll i repot</h2>
+      <div class="filelist">
+        <div class="file"><span class="name">Starta Dashboard.command</span><span class="desc">Startar dashboarden – dubbelklicka</span></div>
+        <div class="file"><span class="name">app.py</span><span class="desc">Dashboardens kod</span></div>
+        <div class="file"><span class="name">requirements.txt</span><span class="desc">Python-beroenden</span></div>
+        <div class="file"><span class="name">README.md</span><span class="desc">Fullständig teknisk dokumentation</span></div>
+      </div>
+      <div class="note">
+        Ditt eget NetSuite-utdrag (.xlsx) läggs till lokalt av dig och ingår inte i detta repo —
+        inga kundfakturor, siffror eller andra affärsdata publiceras någonsin här.
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    Bad Debt Reserve Dashboard · Villman Ekonomitjänster AB ·
+    <a href="https://github.com/lisa382/bad_debt_test" style="color: inherit;">Källkod på GitHub</a>
+  </footer>
+
+</body>
+</html>
